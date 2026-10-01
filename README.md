@@ -170,3 +170,19 @@ vehicle-tracker/
     ├── demo-simulator.js   simulated vehicles for demo mode
     └── app.js              map, Firebase listener, playback, cloud status
 ```
+## Author
+
+**Teki Akhil Venkat**
+
+B.Tech – Computer Science / AIML
+
+## Links
+
+- **Live demo (cloud):** https://smart-vehicle-tracker-ee110.web.app
+- **Hosting:** Firebase Hosting (Google Cloud)
+- **Database:** Firebase Realtime Database
+
+
+## License
+
+This project is intended for educational and demonstration purposes.
