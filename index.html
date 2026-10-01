@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Smart Vehicle Tracking System</title>
+
+  <!-- Leaflet map (free, no API key needed) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">🚚</span>
+      <div>
+        <h1>Cloud Smart Vehicle Tracking System</h1>
+        <p class="brand-sub">ESP8266 &middot; NEO-6M GPS &middot; Firebase Realtime Database</p>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <span id="connBadge" class="badge badge-offline">● Connecting&hellip;</span>
+      <span id="modeBadge" class="badge badge-demo" title="Demo mode simulates vehicles in the browser. Add your Firebase keys in js/firebase-config.js to track real devices.">DEMO MODE</span>
+      <nav class="tabs">
+        <button class="tab active" data-tab="live">◎ Live Tracking</button>
+        <button class="tab" data-tab="history">🕑 History</button>
+        <button class="tab" data-tab="cloud">☁ Cloud Architecture</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ LIVE TAB ============ -->
+  <main id="tab-live" class="tab-panel active">
+
+    <aside class="sidebar">
+      <h2 class="sidebar-title">Vehicles</h2>
+      <div id="vehicleList" class="vehicle-list">
+        <p class="empty-note">Waiting for vehicle data&hellip;</p>
+      </div>
+    </aside>
+
+    <section class="map-area">
+      <div id="map"></div>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-label">Speed</span>
+          <span class="stat-value"><span id="statSpeed">--</span> km/h</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Satellites</span>
+          <span class="stat-value" id="statSats">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Latitude</span>
+          <span class="stat-value" id="statLat">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Longitude</span>
+          <span class="stat-value" id="statLng">--</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Last Update</span>
+          <span class="stat-value" id="statTime">--</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ HISTORY TAB ============ -->
+  <main id="tab-history" class="tab-panel">
+    <aside class="sidebar history-controls">
+      <h2 class="sidebar-title">Route Playback</h2>
+
+      <label class="field">
+        <span>Vehicle</span>
+        <select id="histVehicle"></select>
+      </label>
+
+      <label class="field">
+        <span>Date</span>
+        <input type="date" id="histDate" />
+      </label>
+
+      <button id="loadHistoryBtn" class="btn primary">Load Route</button>
+
+      <div id="histSummary" class="hist-summary" style="display:none">
+        <div><strong id="histPoints">0</strong> points</div>
+        <div><strong id="histDistance">0</strong> km travelled</div>
+        <div>Max speed <strong id="histMaxSpeed">0</strong> km/h</div>
+        <div>Avg speed <strong id="histAvgSpeed">0</strong> km/h</div>
+      </div>
+
+      <div class="playback" style="display:none" id="playbackBox">
+        <button id="playBtn" class="btn primary">▶ Play</button>
+        <input type="range" id="playSlider" min="0" max="0" value="0" step="1" />
+        <div class="playback-time" id="playTime">--:--:--</div>
+      </div>
+
+      <div class="demo-note">
+        History data is written by the ESP8266 to
+        <code>/vehicles/<id>/history</code> in Firebase. In demo mode a
+        sample route is generated automatically.
+      </div>
+    </aside>
+
+    <section class="map-area">
+      <div id="histMap"></div>
+    </section>
+  </main>
+
+  <!-- ============ CLOUD ARCHITECTURE TAB ============ -->
+  <main id="tab-cloud" class="tab-panel tab-cloud">
+
+    <section class="cloud-col cloud-stack-col">
+      <h2 class="sidebar-title">The project as a cloud stack</h2>
+
+      <div class="cloud-stack">
+        <div class="cloud-layer">
+          <div class="cl-head">Layer 4 · Users and devices</div>
+          <div class="cl-body">Remote user on any browser · vehicle device (ESP8266 + NEO-6M GPS) sending data over Wi-Fi</div>
+        </div>
+        <div class="cloud-arrow">▲&nbsp;&nbsp;requests & live data&nbsp;&nbsp;▼</div>
+        <div class="cloud-layer">
+          <div class="cl-head">Layer 3 · Application — SaaS</div>
+          <div class="cl-body">This web dashboard: pure HTML/CSS/JavaScript, consumed in the browser with nothing to install. The ESP8266 firmware is the device-side client of the same cloud API.</div>
+        </div>
+        <div class="cloud-arrow">▲&nbsp;&nbsp;reads and writes&nbsp;&nbsp;▼</div>
+        <div class="cloud-layer cloud-layer-accent">
+          <div class="cl-head">Layer 2 · Platform — PaaS / BaaS</div>
+          <div class="cl-body"><strong>Firebase</strong> — Realtime Database (storage + live synchronization), Hosting (web delivery), Authentication (identity). Consumed as services over the internet; no servers are managed by us.</div>
+        </div>
+        <div class="cloud-arrow">▲&nbsp;&nbsp;runs on&nbsp;&nbsp;▼</div>
+        <div class="cloud-layer">
+          <div class="cl-head">Layer 1 · Infrastructure — IaaS</div>
+          <div class="cl-body">Google Cloud Platform: global compute, storage and network. Managed entirely by Google and invisible to this project.</div>
+        </div>
+      </div>
+
+      <div class="cloud-status" id="cloudStatusCard">
+        <div class="cs-title">Live cloud status</div>
+        <div class="cs-row"><span>Mode</span><strong id="csMode">--</strong></div>
+        <div class="cs-row"><span>Cloud provider</span><strong>Google (Firebase)</strong></div>
+        <div class="cs-row"><span>Project</span><strong id="csProject">--</strong></div>
+        <div class="cs-row"><span>Database</span><strong>Realtime Database</strong></div>
+        <div class="cs-note" id="csNote"></div>
+      </div>
+    </section>
+
+    <section class="cloud-col">
+      <h2 class="sidebar-title">Cloud service models used</h2>
+      <table class="cloud-table">
+        <thead>
+          <tr><th>Model</th><th>What this project uses it for</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>SaaS</strong></td><td>The tracking dashboard — used from any browser, no installation, no maintenance by the user.</td></tr>
+          <tr><td><strong>PaaS / BaaS</strong></td><td>Firebase Realtime Database, Hosting and Authentication — backend services consumed through APIs.</td></tr>
+          <tr><td><strong>IaaS</strong></td><td>Google Cloud infrastructure underneath Firebase — compute, storage and network.</td></tr>
+        </tbody>
+      </table>
+
+      <h2 class="sidebar-title" style="margin-top:6px">Cloud characteristics demonstrated (NIST)</h2>
+      <ul class="cloud-list">
+        <li><strong>On-demand self-service</strong> — a new vehicle registers itself just by writing to <code>/vehicles</code>; no admin needed.</li>
+        <li><strong>Broad network access</strong> — the dashboard works from any browser, devices connect over Wi-Fi and the internet.</li>
+        <li><strong>Resource pooling</strong> — Firebase&rsquo;s multi-tenant backend stores this project alongside millions of others.</li>
+        <li><strong>Rapid elasticity</strong> — one vehicle or a hundred, the same code and no scaling work.</li>
+        <li><strong>Measured service</strong> — Spark free tier with usage quotas; cost rises only if usage grows.</li>
+      </ul>
+
+      <div class="cloud-note-box">
+        <strong>Why this is a cloud computing project:</strong> the vehicle, the database and the user are in
+        three different places, connected only through the internet. All storage, synchronization and
+        delivery happen in Google&rsquo;s cloud — the project itself runs no server of its own.
+        Deploying the dashboard to <em>Firebase Hosting</em> (see README) makes even the web delivery a
+        cloud service.
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Department of AI & ML &mdash; Cloud Computing Cornerstone Project &middot;
+       GPS + IoT + Edge Processing + Cloud, on a single platform.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/demo-simulator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
