@@ -21,18 +21,18 @@ const DemoSimulator = (() => {
   // waypoint to the nearest road and drives between them along
   // real streets, then returns to the first one.
   // Change these coordinates to simulate movement in your own city.
-  const WAYPOINTS = {
+    const WAYPOINTS = {
     vehicle1: [
       [17.6905, 83.2150], [17.6930, 83.2250], [17.6880, 83.2300],
       [17.6830, 83.2220], [17.6845, 83.2160],
     ],
     vehicle2: [
-      [19.6750, 83.2120], [19.6785, 83.2155], [19.6810, 83.2198],
-      [19.6762, 83.2220],
+      [17.6750, 83.2120], [17.6785, 83.2155], [17.6810, 83.2198],
+      [17.6762, 83.2220],
     ],
-        vehicle3: [
-      [17.6849, 83.1550], [17.6862, 83.1600], [17.6875, 83.1650],
-      [17.6890, 83.1700], [17.6910, 83.1750], [17.6920, 83.1800],
+    vehicle3: [
+      [17.6749, 83.2120], [17.6782, 83.2155], [17.6811, 83.2198],
+      [17.6761, 83.2220],
     ],
     vehicle4: [
       [17.7000, 83.2000], [17.7020, 83.2050], [17.7040, 83.2100],
@@ -42,12 +42,8 @@ const DemoSimulator = (() => {
       [17.7100, 83.2300], [17.7120, 83.2350], [17.7140, 83.2400],
       [17.7160, 83.2450], [17.7180, 83.2500],
     ],
-    vehicle6: [
-      [17.7200, 83.2600], [17.7220, 83.2650], [17.7240, 83.2700],
-      [17.7260, 83.2750], [17.7280, 83.2800],
-    ],
+  };
 
-      };
 
   // Demo vehicles — change `type` to bike | car | bus | auto | truck
   // and the marker on the map changes to match.
@@ -57,7 +53,7 @@ const DemoSimulator = (() => {
     vehicle3: { name: "Kurmannapalem Auto", type: "auto" },
     vehicle4: { name: "Demo Truck 04", type: "truck" },
     vehicle5: { name: "Demo Bus 05", type: "bus" },
-    vehicle6: { name: "Demo Bike 06", type: "ambulance" },
+    
   };
 
   const state = {};       // id -> simulation state

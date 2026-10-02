@@ -104,6 +104,13 @@ function setConn(state) {
   if (state === "offline") { b.className = "badge badge-offline";  b.textContent = "● Connection error"; }
   if (state === "connecting") { b.className = "badge badge-offline"; b.textContent = "● Connecting…"; }
 }
+  // Default the history date picker to today (local time), so the
+  // History tab opens on one day's route instead of all of them.
+  const dEl = document.getElementById("histDate");
+  if (dEl && !dEl.value) {
+    const t = new Date();
+    dEl.value = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+  }
 
 /* ============================================================
    TABS
